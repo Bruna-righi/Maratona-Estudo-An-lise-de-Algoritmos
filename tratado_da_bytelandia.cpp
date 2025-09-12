@@ -4,16 +4,10 @@ using namespace std;
 
 #define EPS (1e-9);
 
-typedef pair<int, int> Point;
-struct pt {
-    double x, y;
-    bool operator == (pt const& t) const {
-        return x == t.x && y == t.y;
-    }
-};
+typedef pair<int, int> pt;
 
 int orientation(pt a, pt b, pt c) {
-    double v = a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y);
+    double v = a.first*(b.second-c.second)+b.first*(c.second-a.second)+c.first*(a.second-b.second);
     if (v < 0) return -1; // clockwise
     if (v > 0) return +1; // counter-clockwise
     return 0;
@@ -25,15 +19,15 @@ bool cw(pt a, pt b, pt c, bool include_collinear) {
 }
 bool collinear(pt a, pt b, pt c) { return orientation(a, b, c) == 0; }
 
-void convex_hull(vector<pt>& a, bool include_collinear = true) {
+vector<pt> convex_hull(vector<pt>& a, bool include_collinear = true) {
     pt p0 = *min_element(a.begin(), a.end(), [](pt a, pt b) {
-        return make_pair(a.y, a.x) < make_pair(b.y, b.x);
+        return make_pair(a.second, a.first) < make_pair(b.second, b.first);
     });
     sort(a.begin(), a.end(), [&p0](const pt& a, const pt& b) {
         int o = orientation(p0, a, b);
         if (o == 0)
-            return (p0.x-a.x)*(p0.x-a.x) + (p0.y-a.y)*(p0.y-a.y)
-                < (p0.x-b.x)*(p0.x-b.x) + (p0.y-b.y)*(p0.y-b.y);
+            return (p0.first-a.first)*(p0.first-a.first) + (p0.second-a.second)*(p0.second-a.second)
+                < (p0.first-b.first)*(p0.first-b.first) + (p0.second-b.second)*(p0.second-b.second);
         return o < 0;
     });
     if (include_collinear) {
@@ -52,21 +46,21 @@ void convex_hull(vector<pt>& a, bool include_collinear = true) {
     if (include_collinear == false && st.size() == 2 && st[0] == st[1])
         st.pop_back();
 
-    a = st;
+    return st;
 }
 
 int main(){
     int t;
     cin >> t;
-    vector<Point> pontos(t);
-    map<Point, int> mapa;
+    vector<pt> pontos(t);
+    map<pt, int> mapa;
     for(int i = 0; i <t; i++) {
         int x, y;
         cin >> x >> y;
-        pontos[i] = Point(x, y);
+        pontos[i] = pt(x, y);
         mapa[{x,y}] =i+1;
     }
-    vector<Point> pontosInf = convexHull(pontos);
+    vector<pt> pontosInf = convex_hull(pontos, true);
     vector<int> idxP;
     for (auto p:pontosInf){
         idxP.push_back(mapa[p]);
